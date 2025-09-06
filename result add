@@ -1,0 +1,65 @@
+<?php 
+include 'db_connect.php';
+
+$students = $conn->query("SELECT id, firstname, lastname FROM students");
+$courses  = $conn->query("SELECT id, course_name FROM courses");
+$subjects = $conn->query("SELECT id, subject_name FROM subjects");
+?>
+
+<div class="card card-outline card-primary">
+  <div class="card-header">
+    <h3 class="card-title">Add New Result</h3>
+  </div>
+  <div class="card-body">
+    <form id="result-form">
+      <div class="form-group">
+        <label>Student</label>
+        <select name="student_id" class="form-control" required>
+          <option value="">-- Select Student --</option>
+          <?php while($s = $students->fetch_assoc()): ?>
+            <option value="<?= $s['id'] ?>"><?= $s['firstname'].' '.$s['lastname'] ?></option>
+          <?php endwhile; ?>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Course</label>
+        <select name="course_id" class="form-control" required>
+          <option value="">-- Select Course --</option>
+          <?php while($c = $courses->fetch_assoc()): ?>
+            <option value="<?= $c['id'] ?>"><?= $c['course_name'] ?></option>
+          <?php endwhile; ?>
+        </select>
+      </div>
+
+      <h5>Subjects & Marks</h5>
+      <?php while($sub = $subjects->fetch_assoc()): ?>
+        <div class="form-group">
+          <label><?= $sub['subject_name'] ?></label>
+          <input type="number" name="marks[<?= $sub['id'] ?>]" class="form-control" min="0" max="100" step="0.01">
+        </div>
+      <?php endwhile; ?>
+
+      <button type="submit" class="btn btn-primary">Save Result</button>
+    </form>
+  </div>
+</div>
+
+<script>
+$('#result-form').submit(function(e){
+  e.preventDefault();
+  $.ajax({
+    url: 'save_result.php',
+    method: 'POST',
+    data: $(this).serialize(),
+    success: function(resp){
+      if(resp == 1){
+        alert("Result Saved Successfully");
+        location.href = "results_list.php";
+      } else {
+        alert("Error saving result.");
+      }
+    }
+  });
+});
+</script>
