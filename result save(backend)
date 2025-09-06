@@ -1,0 +1,31 @@
+<?php
+include 'db_connect.php';
+
+$student_id = $_POST['student_id'];
+$course_id  = $_POST['course_id'];
+$marks      = $_POST['marks']; // subject_id => mark
+
+$total = 0;
+$count = 0;
+
+foreach($marks as $mark){
+    if($mark != ""){
+        $total += $mark;
+        $count++;
+    }
+}
+
+$percentage = $count > 0 ? ($total / $count) : 0;
+
+$conn->query("INSERT INTO results (student_id, course_id, marks_percentage) 
+              VALUES ('$student_id','$course_id','$percentage')");
+$result_id = $conn->insert_id;
+
+foreach($marks as $sub_id => $mark){
+    if($mark != ""){
+        $conn->query("INSERT INTO result_items (result_id, subject_id, mark) 
+                      VALUES ('$result_id','$sub_id','$mark')");
+    }
+}
+
+echo 1;
