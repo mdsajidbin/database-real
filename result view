@@ -1,0 +1,37 @@
+<?php 
+include 'db_connect.php';
+$id = $_GET['id'];
+
+$result = $conn->query("SELECT r.*, CONCAT(s.firstname,' ',s.lastname) as student, c.course_name 
+                        FROM results r 
+                        JOIN students s ON r.student_id=s.id 
+                        JOIN courses c ON r.course_id=c.id 
+                        WHERE r.id=$id")->fetch_assoc();
+
+$items = $conn->query("SELECT ri.*, sub.subject_name 
+                       FROM result_items ri 
+                       JOIN subjects sub ON ri.subject_id=sub.id 
+                       WHERE ri.result_id=$id");
+?>
+
+<div class="card card-outline card-info">
+  <div class="card-header">
+    <h3 class="card-title">Result Details</h3>
+  </div>
+  <div class="card-body">
+    <p><b>Student:</b> <?= $result['student'] ?></p>
+    <p><b>Course:</b> <?= $result['course_name'] ?></p>
+    <p><b>Average:</b> <?= $result['marks_percentage'] ?>%</p>
+
+    <h5>Subjects</h5>
+    <table class="table table-bordered">
+      <tr><th>Subject</th><th>Mark</th></tr>
+      <?php while($r = $items->fetch_assoc()): ?>
+        <tr>
+          <td><?= $r['subject_name'] ?></td>
+          <td><?= $r['mark'] ?></td>
+        </tr>
+      <?php endwhile; ?>
+    </table>
+  </div>
+</div>
